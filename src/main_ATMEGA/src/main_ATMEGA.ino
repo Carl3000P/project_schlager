@@ -1,19 +1,15 @@
 #include "LedControl.h"
 
-#define relayPin 0
+#define relayPin 0 //TODO define relayPin
 
 void setup() {
-
   Serial.begin(115200);
   delay(500);
   ////Serial.println("Start...");
-  //digitalWrite(analogInPin, HIGH); // Make button condition HIGH
-  //pinMode(analogInPin1, OUTPUT);
-
   setupLEDS();
 }
 
-void DebugToSerial(String debug){
+void DebugToSerial(String debug){ //Function that controls debug information to not flood Serial communication
   //Serial.println(debug);
   //ProtocolNumberToESP = "11" + debug;
 }
@@ -23,7 +19,6 @@ void loop() {
  if (Serial.available() > 0) {
 
     ProtocolNumber = Serial.readString();
-
 
     // say what you got:
     DebugToSerial("Command received: ");
@@ -37,7 +32,7 @@ void loop() {
     DebugToSerial("Protocol Command: ");
     DebugToSerial(ProtocolCommand);
   }
-    
+
   } else
   if(ProtocolOperation == "0"){
     if(ProtocolCommand == "0"){
@@ -48,4 +43,3 @@ void loop() {
     }
   }
 }
-

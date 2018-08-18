@@ -3,22 +3,23 @@
 //Programa : Teclado matricial 4x3 Arduino
 //Autor : Arduino e Cia
 
-void setup()
-{
+void setup(){
   //Pinos ligados aos pinos 4, 5, 6 e 7 do teclado - Linhas
-  pinMode(4, OUTPUT);
-  pinMode(5, OUTPUT);
-  pinMode(6, OUTPUT);
-  pinMode(7, OUTPUT);
+  pinMode(12, OUTPUT);
+  pinMode(13, OUTPUT);
+  pinMode(14, OUTPUT);
+  pinMode(18, OUTPUT);
    
   //Pinos ligados aos pinos 8, 9, e 10 do teclado - Colunas
-  pinMode(8, INPUT);
+  pinMode(19, INPUT);
   //Ativacao resistor pull-up
-  digitalWrite(8, HIGH);
-  pinMode(9, INPUT);
-  digitalWrite(9, HIGH);
-  pinMode(10, INPUT);
-  digitalWrite(10, HIGH);
+  digitalWrite(19, HIGH);
+  pinMode(21, INPUT);
+  digitalWrite(21, HIGH);
+  pinMode(22, INPUT);
+  digitalWrite(22, HIGH);
+  pinMode(22, INPUT);
+  digitalWrite(22, HIGH);
    
   Serial.begin(9600);
   Serial.println("Teclado 4x3 - Exemplo 1");
