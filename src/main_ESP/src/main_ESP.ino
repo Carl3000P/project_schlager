@@ -1,50 +1,39 @@
+#include "MainController.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-//#include "LedControl.h"
-#define LED_BUILTIN 16
-
-int ky038APin = A0;
-int ky038DPin = 15;
-int raspberryPin = 0;
-
-int ky038AValue = 0;
-int ky038DValue = 0;
-
-int MAX_KY_VALUE = 100;
-
+#include "KY_038.h"
+#include "Keypad.h"
 
 void setup() {
   Serial.begin(115200);
   delay(500);
   //Starting reading Thread
-  xTaskCreate(ky_read, "ky_read", 20480, NULL, 2, NULL);
+  xTaskCreate(ky_read, "ky_read", 8192, NULL, 2, NULL);
   //Defining Pins
-  pinMode(ky038APin, INPUT);
-  pinMode(ky038DPin, INPUT);
+  setupKY_038();
+  pinMode(raspberryPin, OUTPUT);
+  pinMode(unoPin, OUTPUT);
 }
 
-void DebugToSerial(String debug){
+void DebugToSerial(String debug){ //Function that controls debug information to not flood Serial communication
   //Serial.println(debug);
   //ProtocolNumberToESP = "11" + debug;
 }
 
-void ky_read(void *args){
-  while(1){
-      ky038AValue = analogRead(ky038APin);
-      ky038DValue = digitalRead(ky038DPin);
-      vTaskDelay(500);
-      Serial.println(ky038AValue, DEC);
-      if(ky038AValue >= MAX_KY_VALUE){
-        Serial.write("01");
-        digitalWrite(raspberryPin, HIGH);
-      } else  {
-          Serial.write("00");
-          digitalWrite(raspberryPin, LOW);
+void loop() {
+  char pressed_key = keypad.getKey();
+  //Mostra no serial monitor o caracter da matriz,
+  //referente a tecla que foi pressionada
+  if (pressed_key){
+    Serial.println(pass_key);
+    if(pressed_key == '#'){
+      if(pass_key == "1234"){
+        equipamentBlocked = false;
+        digitalWrite(unoPin, HIGH);
       }
     }
-  vTaskDelete( NULL );
-}
-
-void loop() {
-
+    pass_key.concat(String(pressed_key));
+    //Serial.println("Tecla pressionada : ");
+    //Serial.print(pressed_key);
+  }
 }
