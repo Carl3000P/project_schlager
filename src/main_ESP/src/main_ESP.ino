@@ -25,7 +25,7 @@ void loop() {
   //Mostra no serial monitor o caracter da matriz,
   //referente a tecla que foi pressionada
   if (pressed_key){
-    Serial.println(pass_key);
+    DebugToSerial(pass_key);
     if(pressed_key == '#'){
       if(pass_key == "1234"){
         equipamentBlocked = false;

@@ -25,6 +25,7 @@ void ky_read(void *args){
       Serial.println(ky038AValue, DEC);
       if(ky038AValue >= MAX_KY_VALUE){
         volumeHigh();
+        vTaskDelay(200);
     } else  {
         volumeLow();
       }
