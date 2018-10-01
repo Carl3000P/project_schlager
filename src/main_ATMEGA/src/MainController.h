@@ -20,16 +20,16 @@ void readProtocol(){
   if (Serial.available() > 0) {
 
      ProtocolNumber = Serial.readString();
-
+     delay(150);
      // say what you got:
      DebugToSerial("Command received: ");
      DebugToSerial(ProtocolNumber);
 
-     ProtocolOperation = ProtocolNumber.substring(0, 1);
+     ProtocolOperation = ProtocolNumber.substring(0, 2);
      DebugToSerial("Protocol Operation: ");
      DebugToSerial(ProtocolOperation);
 
-     ProtocolCommand = ProtocolNumber.substring(1);
+     ProtocolCommand = ProtocolNumber.substring(2);
      DebugToSerial("Protocol Command: ");
      DebugToSerial(ProtocolCommand);
    }

@@ -3,9 +3,10 @@
 
 LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
 
-int ESP_Pin = 12;
+int ESP_Pin = 6;
 bool started = false;
 bool unlocked = false;
+
 void cleanDisplay(){
   lcd.setCursor(0,0);
   lcd.print("                  ");

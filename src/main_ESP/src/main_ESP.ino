@@ -8,7 +8,7 @@ void setup() {
   Serial.begin(115200);
   delay(500);
   //Starting reading Thread
-  xTaskCreate(ky_read, "ky_read", 8192, NULL, 2, NULL);
+  xTaskCreate(ky_read, "ky_read", 16384, NULL, 2, NULL);
   //Defining Pins
   setupKY_038();
   pinMode(raspberryPin, OUTPUT);
@@ -16,7 +16,7 @@ void setup() {
 }
 
 void DebugToSerial(String debug){ //Function that controls debug information to not flood Serial communication
-  //Serial.println(debug);
+  Serial.println(debug);
   //ProtocolNumberToESP = "11" + debug;
 }
 
@@ -30,6 +30,7 @@ void loop() {
       if(pass_key == "1234"){
         equipamentBlocked = false;
         digitalWrite(unoPin, HIGH);
+        pressed_key = 0;
       }
     }
     pass_key.concat(String(pressed_key));
