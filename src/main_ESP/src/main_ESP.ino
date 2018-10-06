@@ -13,10 +13,11 @@ void setup() {
   setupKY_038();
   pinMode(raspberryPin, OUTPUT);
   pinMode(unoPin, OUTPUT);
+  pinMode(27, OUTPUT);
 }
 
 void DebugToSerial(String debug){ //Function that controls debug information to not flood Serial communication
-  Serial.println(debug);
+  //Serial.println(debug);
   //ProtocolNumberToESP = "11" + debug;
 }
 
@@ -27,6 +28,7 @@ void loop() {
   if (pressed_key){
     DebugToSerial(pass_key);
     if(pressed_key == '#'){
+      pressed_key = 0;
       if(pass_key == "1234"){
         equipamentBlocked = false;
         digitalWrite(unoPin, HIGH);

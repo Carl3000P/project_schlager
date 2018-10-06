@@ -9,21 +9,22 @@ void setupKY_038(){
 
 void volumeHigh(){
   if(!equipamentBlocked){
-    if(LastCommand != "01"){
-      prefix = "01";
-      LastCommand = "01";
-    }
     digitalWrite(raspberryPin, HIGH);
+    digitalWrite(27, HIGH);
+    vTaskDelay(2000);
+    Serial.println("Volume High");
+    Serial.println("Pins Highed");
+    Serial.println("____________");
   }
 }
 
 void volumeLow(){
   if(!equipamentBlocked){
-    if(LastCommand != "00"){
-      prefix = "00";
-      LastCommand = "00";
-    }
     digitalWrite(raspberryPin, LOW);
+    digitalWrite(27, LOW);
+    Serial.println("Volume Low");
+    Serial.println("Pins Lowered");
+    Serial.println("____________");
   }
 }
 
@@ -34,14 +35,10 @@ void ky_read(void *args){
       vTaskDelay(50);
       if(ky038AValue >= MAX_KY_VALUE){
         volumeHigh();
-        vTaskDelay(2000);
     } else  {
         volumeLow();
       }
-      SendToArduino = prefix;
-      SendToArduino.concat(String(ky038AValue, DEC));
-      Serial.write(SendToArduino.c_str());
-      Serial.flush();
+      Serial.println(ky038AValue);
       vTaskDelay(500);
   }
   vTaskDelete( NULL );
