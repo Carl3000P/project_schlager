@@ -1,47 +1,30 @@
 #pragma once
 
-#define relayPin 0 //TODO define relayPin
+#define relayPin 22 //TODO define relayPin
 
 bool soundDetected = false;
 
-String ProtocolNumber = "";
-String ProtocolOperation = "";
-String ProtocolCommand = "";
+bool ProtocolNumber;
 
 String ProtocolNumberToESP = "";
 String LastCommandToESP = "";
 
 void DebugToSerial(String debug){ //Function that controls debug information to not flood Serial communication
   Serial.println(debug);
-  //ProtocolNumberToESP = "11" + debug;
 }
 
 void readProtocol(){
-  if (Serial.available() > 0) {
 
-     ProtocolNumber = Serial.readString();
-     delay(150);
-     // say what you got:
-     DebugToSerial("Command received: ");
-     DebugToSerial(ProtocolNumber);
+      ProtocolNumber = digitalRead(22);
 
-     ProtocolOperation = ProtocolNumber.substring(0, 2);
-     DebugToSerial("Protocol Operation: ");
-     DebugToSerial(ProtocolOperation);
+     delay(200);
 
-     ProtocolCommand = ProtocolNumber.substring(2);
-     DebugToSerial("Protocol Command: ");
-     DebugToSerial(ProtocolCommand);
-   }
-
-   if(ProtocolOperation == "0"){
-     if(ProtocolCommand == "0"){
+     if(ProtocolNumber == false){
        soundDetected = false;
        digitalWrite(relayPin, LOW);
      } else
-     if(ProtocolCommand == "1"){
+     if(ProtocolNumber == true){
        soundDetected = true;
        digitalWrite(relayPin, HIGH);
      }
-   }
 }
