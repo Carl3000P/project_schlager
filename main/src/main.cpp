@@ -1,25 +1,12 @@
+#include <Arduino.h>
+#include <LiquidCrystal.h>
+#include "MainController.h"
+#include "wiring.h"
+#include "LedControl.h"
+#include "KY_038.h"
 #include "MotorUtils.h"
 #include "UltrasonicUtils.h"
-#include "MainController.h"
-#include "LedControl.h"
-
-int SENSOR1 = 42;
-int SENSOR2 = 44;
-int SENSOR3 = 46;
-int SENSOR4 = 48;
-int SENSOR5 = 50;
-
-int SENSOR6 =  43;
-int SENSOR7 =  45;
-int SENSOR8 =  47;
-int SENSOR9 =  49;
-int SENSOR10 = 51;
-
-bool FRONT_farLeftSensor, FRONT_leftSensor, FRONT_centerSensor,FRONT_rightSensor, FRONT_farRightSensor;
-bool BACK_farLeftSensor, BACK_leftSensor, BACK_centerSensor,BACK_rightSensor, BACK_farRightSensor;
-
-bool sensorInLine = false;
-bool sensorOffLine = true;
+#include "Keypad.h"
 
 void setup() {
   // put your setup code here, to run once:
@@ -40,11 +27,17 @@ void setup() {
   pinMode(SENSOR10, INPUT);
 
   setupMotor();
+  setupLEDS();
+  setupKY_038();
 }
 
 void loop() {
 
-  readProtocol();
+  while(equipamentBlocked == true){
+    unlockProtocol();
+  }
+
+  ky_read();
   ultrasonicRead();
 
   FRONT_farLeftSensor = digitalRead(SENSOR1);
@@ -61,7 +54,6 @@ void loop() {
 
   if(!stopProximity){
     if(!soundDetected){
-          LedOff();
           motorA(SENTIDO_ANTIHORARIO);
           motorB(SENTIDO_ANTIHORARIO);
 
@@ -70,45 +62,52 @@ void loop() {
           if(FRONT_farLeftSensor == sensorOffLine && FRONT_leftSensor == sensorOffLine &&  FRONT_centerSensor == sensorInLine && FRONT_rightSensor == sensorOffLine && FRONT_farRightSensor == sensorOffLine ){ //RETO
             analogWrite(velocityA, VELOCITY_2_MOTOR);
             analogWrite(velocityB, VELOCITY_2_MOTOR);
-            DebugToSerial("MDB\n");
+            Serial.println("MDB");
           } else
 
           //CORRECAO DE ROTA
           if(FRONT_farLeftSensor == sensorOffLine && FRONT_leftSensor == sensorOffLine &&  FRONT_centerSensor == sensorInLine && FRONT_rightSensor == sensorInLine && FRONT_farRightSensor == sensorOffLine ){ //CORREÇO DE ROTA LEVE A ESQUERDA
             analogWrite(velocityB, VELOCITY_MIN_MOTOR);
             analogWrite(velocityA, VELOCITY_1_MOTOR);
-            DebugToSerial("CORRECAO LEVE ESQUERDA\n");
+            delay(10);
+            Serial.println("CORRECAO LEVE ESQUERDA");
           } else
           if(FRONT_farLeftSensor == sensorOffLine && FRONT_leftSensor == sensorInLine &&  FRONT_centerSensor == sensorInLine && FRONT_rightSensor == sensorOffLine && FRONT_farRightSensor == sensorOffLine ){ //CORREÇO DE ROTA LEVE A DIREITA
             analogWrite(velocityB, VELOCITY_1_MOTOR);
             analogWrite(velocityA, VELOCITY_MIN_MOTOR);
-            DebugToSerial("CORRECAO LEVE DIREITA\n");
+            delay(10);
+            Serial.println("CORRECAO LEVE DIREITA");
           } else
           if(FRONT_farLeftSensor == sensorOffLine && FRONT_leftSensor == sensorInLine &&  FRONT_centerSensor == sensorOffLine && FRONT_rightSensor == sensorOffLine && FRONT_farRightSensor == sensorOffLine ){ //CORREÇO DE ROTA ACENTUADA A DIREITA
             analogWrite(velocityB, VELOCITY_2_MOTOR);
             analogWrite(velocityA, VELOCITY_MIN_MOTOR);
-            DebugToSerial("CORRECAO ACENTUADA DIREITA\n");
+            delay(10);
+            Serial.println("CORRECAO ACENTUADA DIREITA");
           } else
           if(FRONT_farLeftSensor == sensorOffLine && FRONT_leftSensor == sensorOffLine &&  FRONT_centerSensor == sensorOffLine && FRONT_rightSensor == sensorInLine && FRONT_farRightSensor == sensorOffLine ){ //CORREÇO DE ROTA ACENTUADA A ESQUERDA
             analogWrite(velocityB, VELOCITY_MIN_MOTOR);
             analogWrite(velocityA, VELOCITY_2_MOTOR);
-            DebugToSerial("CORRECAO ACENTUADA ESQUERDA\n");
+            delay(10);
+            Serial.println("CORRECAO ACENTUADA ESQUERDA");
           } else
 
           //CURVA
           if(FRONT_farLeftSensor == sensorInLine && FRONT_leftSensor == sensorInLine &&  FRONT_centerSensor == sensorInLine && FRONT_farRightSensor == sensorOffLine ){ //CURVA ESQUERDA
             analogWrite(velocityA, VELOCITY_MIN_MOTOR);
             analogWrite(velocityB, VELOCITY_MAX_MOTOR);
-            DebugToSerial("CURVA ESQUERDA\n");
+
+            Serial.println("CURVA ESQUERDA");
           } else
           if(FRONT_farLeftSensor == sensorOffLine &&  FRONT_centerSensor == sensorInLine && FRONT_rightSensor == sensorInLine && FRONT_farRightSensor == sensorInLine ){ //CURVA DIREITA
             analogWrite(velocityA, VELOCITY_MAX_MOTOR);
             analogWrite(velocityB, VELOCITY_MIN_MOTOR);
-            DebugToSerial("CURVA DIREITA\n");
+            Serial.println("CURVA DIREITA");
           } else  {
             //FOUDEU
-            DebugToSerial("SandroTheBest\n");
+            analogWrite(velocityA, VELOCITY_MIN_MOTOR);
+            analogWrite(velocityB, VELOCITY_MIN_MOTOR);
           }
+
 
      /*if(directionControl == directionBack){
 
@@ -120,55 +119,55 @@ void loop() {
           if(BACK_farLeftSensor == sensorOffLine && BACK_leftSensor == sensorOffLine &&  BACK_centerSensor == sensorInLine && BACK_rightSensor == sensorOffLine && BACK_farRightSensor == sensorOffLine ){ //RETO
             analogWrite(velocityB, VELOCITY_2_MOTOR);
             analogWrite(velocityA, VELOCITY_2_MOTOR);
-            DebugToSerial("MDB\n");
+            Serial.println("MDB");
           } else
 
           //CORRECAO DE ROTA
           if(BACK_farLeftSensor == sensorOffLine && BACK_leftSensor == sensorOffLine &&  BACK_centerSensor == sensorInLine && BACK_rightSensor == sensorInLine && BACK_farRightSensor == sensorOffLine ){ //CORREÇO DE ROTA LEVE A ESQUERDA
             analogWrite(velocityA, VELOCITY_MIN_MOTOR);
             analogWrite(velocityB, VELOCITY_1_MOTOR);
-            DebugToSerial("CORRECAO LEVE ESQUERDA\n");
+            Serial.println("CORRECAO LEVE ESQUERDA");
           } else
           if(BACK_farLeftSensor == sensorOffLine && BACK_leftSensor == sensorInLine &&  BACK_centerSensor == sensorInLine && BACK_rightSensor == sensorOffLine && BACK_farRightSensor == sensorOffLine ){ //CORREÇO DE ROTA LEVE A DIREITA
             analogWrite(velocityA, VELOCITY_1_MOTOR);
             analogWrite(velocityB, VELOCITY_MIN_MOTOR);
-            DebugToSerial("CORRECAO LEVE DIREITA\n");
+            Serial.println("CORRECAO LEVE DIREITA");
           } else
           if(BACK_farLeftSensor == sensorOffLine && BACK_leftSensor == sensorInLine &&  BACK_centerSensor == sensorOffLine && BACK_rightSensor == sensorOffLine && BACK_farRightSensor == sensorOffLine ){ //CORREÇO DE ROTA ACENTUADA A DIREITA
             analogWrite(velocityA, VELOCITY_2_MOTOR);
             analogWrite(velocityB, VELOCITY_MIN_MOTOR);
-            DebugToSerial("CORRECAO ACENTUADA DIREITA\n");
+            Serial.println("CORRECAO ACENTUADA DIREITA");
           } else
           if(BACK_farLeftSensor == sensorOffLine && BACK_leftSensor == sensorOffLine &&  BACK_centerSensor == sensorOffLine && BACK_rightSensor == sensorInLine && BACK_farRightSensor == sensorOffLine ){ //CORREÇO DE ROTA ACENTUADA A ESQUERDA
             analogWrite(velocityA, VELOCITY_MIN_MOTOR);
             analogWrite(velocityB , VELOCITY_2_MOTOR);
-            DebugToSerial("CORRECAO ACENTUADA ESQUERDA\n");
+            Serial.println("CORRECAO ACENTUADA ESQUERDA");
           } else
 
           //CURVA
           if(BACK_farLeftSensor == sensorInLine && BACK_leftSensor == sensorInLine &&  BACK_centerSensor == sensorInLine && BACK_farRightSensor == sensorOffLine ){ //CURVA ESQUERDA
             analogWrite(velocityB, VELOCITY_MIN_MOTOR);
             analogWrite(velocityA, VELOCITY_MAX_MOTOR);
-            DebugToSerial("CURVA ESQUERDA\n");
+            Serial.println("CURVA ESQUERDA");
           } else
           if(BACK_farLeftSensor == sensorOffLine &&  BACK_centerSensor == sensorInLine && BACK_rightSensor == sensorInLine && BACK_farRightSensor == sensorInLine ){ //CURVA DIREITA
             analogWrite(velocityB, VELOCITY_MAX_MOTOR);
             analogWrite(velocityA, VELOCITY_MIN_MOTOR);
-            DebugToSerial("CURVA DIREITA\n");
+            Serial.println("CURVA DIREITA");
           } else  {
             //FOUDEU
-            DebugToSerial("SandroTheBest\n");
+            Serial.println("SandroTheBest");
           }
      }*/
 
-  }   else  {
-      DebugToSerial("SoundDetected\n");
+  } else  {
+      Serial.println("SoundDetected");
       analogWrite(velocityA, VELOCITY_MIN_MOTOR);
       analogWrite(velocityB, VELOCITY_MIN_MOTOR);
       LedOn();
     }
     } else{
-      DebugToSerial("ProximityDetected");
+      Serial.println("ProximityDetected");
       analogWrite(velocityA, VELOCITY_MIN_MOTOR);
       analogWrite(velocityB, VELOCITY_MIN_MOTOR);
     }

@@ -1,7 +1,3 @@
-String SendToArduino = "";
-String prefix = "";
-String LastCommand = "";
-
 void setupKY_038(){
   pinMode(ky038APin, INPUT);
   pinMode(ky038DPin, INPUT);
@@ -10,8 +6,9 @@ void setupKY_038(){
 void volumeHigh(){
   if(!equipamentBlocked){
     digitalWrite(raspberryPin, HIGH);
-    digitalWrite(27, HIGH);
-    vTaskDelay(2000);
+    LedOn();
+    soundDetected = true;
+    delay(2000);
     Serial.println("Volume High");
     Serial.println("Pins Highed");
     Serial.println("____________");
@@ -21,25 +18,24 @@ void volumeHigh(){
 void volumeLow(){
   if(!equipamentBlocked){
     digitalWrite(raspberryPin, LOW);
-    digitalWrite(27, LOW);
+    LedOff();
+    soundDetected = false;
     Serial.println("Volume Low");
     Serial.println("Pins Lowered");
     Serial.println("____________");
   }
 }
 
-void ky_read(void *args){
-  while(1){
+void ky_read(){
       ky038AValue = analogRead(ky038APin);
       ky038DValue = digitalRead(ky038DPin);
-      vTaskDelay(50);
+      delay(50);
       if(ky038AValue >= MAX_KY_VALUE){
         volumeHigh();
     } else  {
         volumeLow();
       }
+      Serial.print("Sound: ");
       Serial.println(ky038AValue);
-      vTaskDelay(500);
+      delay(100);
   }
-  vTaskDelete( NULL );
-}

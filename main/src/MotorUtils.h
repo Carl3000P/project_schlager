@@ -1,21 +1,3 @@
-const int IN1 = 2;
-const int IN2 = 3;
-const int IN3 = 4;
-const int IN4 = 5;
-
-const int velocityA = 6;
-const int velocityB = 9;
-
-int SENTIDO_HORARIO = 0;
-int SENTIDO_ANTIHORARIO = 1;
-int PONTO_MORTO = 2;
-int FREIO = 3;
-
-int VELOCITY_MIN_MOTOR = 0;
-int VELOCITY_1_MOTOR = 0;
-int VELOCITY_2_MOTOR = 100;
-int VELOCITY_MAX_MOTOR = 155;
-
 void setupMotor(){
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
